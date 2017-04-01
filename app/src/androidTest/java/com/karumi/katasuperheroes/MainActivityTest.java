@@ -24,6 +24,7 @@ import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.view.View;
+
 import com.karumi.katasuperheroes.di.MainComponent;
 import com.karumi.katasuperheroes.di.MainModule;
 import com.karumi.katasuperheroes.model.SuperHero;
@@ -31,14 +32,17 @@ import com.karumi.katasuperheroes.model.SuperHeroesRepository;
 import com.karumi.katasuperheroes.recyclerview.RecyclerViewInteraction;
 import com.karumi.katasuperheroes.ui.view.MainActivity;
 import com.karumi.katasuperheroes.ui.view.SuperHeroDetailActivity;
-import it.cosenonjaviste.daggermock.DaggerMockRule;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+import it.cosenonjaviste.daggermock.DaggerMockRule;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -193,7 +197,7 @@ import static org.mockito.Mockito.when;
     when(repository.getAll()).thenReturn(superHeroes);
     return superHeroes;
   }
-
+ 
   private void givenThereAreNoSuperHeroes() {
     when(repository.getAll()).thenReturn(Collections.<SuperHero>emptyList());
   }
