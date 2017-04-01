@@ -62,7 +62,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class) @LargeTest public class MainActivityTest {
 
-  private static final int ANY_NUMBER_OF_SUPER_HEROES = 10;
+  private static final int ANY_NUMBER_OF_SUPER_HEROES = 200;
 
   @Rule public DaggerMockRule<MainComponent> daggerRule =
       new DaggerMockRule<>(MainComponent.class, new MainModule()).set(
@@ -81,19 +81,70 @@ import static org.mockito.Mockito.when;
 
   @Mock SuperHeroesRepository repository;
 
-  @Test public void showsEmptyCaseIfThereAreNoSuperHeroes() {
-    givenThereAreNoSuperHeroes();
 
-    startActivity();
 
-    onView(withText("¯\\_(ツ)_/¯")).check(matches(isDisplayed()));
-  }
+    private RecyclerViewInteraction.ItemViewAssertion<SuperHero> checkRow =
+            new RecyclerViewInteraction.ItemViewAssertion<SuperHero>() {
+        @Override public void check(SuperHero superHero, View view, NoMatchingViewException e) {
+            matches(hasDescendant(withText(superHero.getName()))).check(view, e);
+        }
+    };
+
+    private RecyclerViewInteraction.ItemViewAssertion<SuperHero> checkRowForAvenger =
+            new RecyclerViewInteraction.ItemViewAssertion<SuperHero>() {
+                @Override public void check(SuperHero superHero, View view, NoMatchingViewException e) {
+                    matches(hasDescendant(withId(R.id.iv_avengers_badge))).check(view, e);
+                }
+            };
+
+    @Test public void showsEmptyCaseIfThereAreNoSuperHeroes() {
+        givenThereAreNoSuperHeroes();
+
+        startActivity();
+
+        onView(withText("¯\\_(ツ)_/¯")).check(matches(isDisplayed()));
+    }
+
+    @Test public void doesNotShowEmptyCaseIfThereAreSuperHeroes() {
+        givenThereAreSomeSuperHeroes();
+
+        startActivity();
+
+        onView(withText("¯\\_(ツ)_/¯")).check(matches(not(isDisplayed())));
+    }
+
+    @Test public void showSuperHeroIfThereAreSomeSuperHeroes() {
+        List<SuperHero> superHeros = givenThereAreSomeSuperHeroes();
+
+        startActivity();
+
+        RecyclerViewInteraction
+                .<SuperHero>onRecyclerView(withId(R.id.recycler_view))
+                .withItems(superHeros.subList(0,20))
+                .check(checkRow);
+
+        }
+
+    @Test public void showSuperHeroIfTheyAreAvengers() {
+        List<SuperHero> superHeros = givenThereAreSomeSuperHeroes();
+
+        startActivity();
+
+        RecyclerViewInteraction
+                .<SuperHero>onRecyclerView(withId(R.id.recycler_view))
+                .withItems(superHeros.subList(0,20))
+                .check(checkRowForAvenger);
+
+    }
+
 
   @Test public void showsSuperHeroesNameIfThereAreSuperHeroes() {
     List<SuperHero> superHeroes = givenThereAreSomeSuperHeroes(ANY_NUMBER_OF_SUPER_HEROES);
 
     startActivity();
 
+      //normally the template method onRecyclerView will take an <A>
+      //but here we can cast it to a type <SuperHero> so it knows what to do with the items in the recycler view
     RecyclerViewInteraction.<SuperHero>onRecyclerView(withId(R.id.recycler_view))
         .withItems(superHeroes)
         .check(new RecyclerViewInteraction.ItemViewAssertion<SuperHero>() {
@@ -133,7 +184,7 @@ import static org.mockito.Mockito.when;
         });
   }
 
-  @Test public void doesNotShowEmptyCaseIfThereAreSuperHeroes() {
+  @Test public void doesNoEmptyCaseByReferenceIfThereAreSuperHeroes() {
     givenThereAreSomeSuperHeroes(ANY_NUMBER_OF_SUPER_HEROES);
 
     startActivity();
@@ -197,7 +248,7 @@ import static org.mockito.Mockito.when;
     when(repository.getAll()).thenReturn(superHeroes);
     return superHeroes;
   }
- 
+
   private void givenThereAreNoSuperHeroes() {
     when(repository.getAll()).thenReturn(Collections.<SuperHero>emptyList());
   }
